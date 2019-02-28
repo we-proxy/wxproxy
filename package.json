@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "start": "node ."
+  },
+  "dependencies": {
+    "http-proxy": "^1.16.2",
+    "mock-res": "^0.5.0"
+  }
+}
