@@ -22,7 +22,7 @@ proxy.on('proxyReq', (proxyReq, req, res, options) => {
 let cache = new Map()
 
 let server = http.createServer((req, res) => {
-  let _url = req.url.slice(1)
+  let _url = req.url.slice(4) // /?a={url}
   let url = decodeURIComponent(_url)
   console.log('url', url)
 
