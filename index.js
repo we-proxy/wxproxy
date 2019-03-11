@@ -11,6 +11,14 @@ let proxy = httpProxy.createProxyServer({
   changeOrigin: true
 })
 
+// 修改proxyReq
+// https://github.com/nodejitsu/node-http-proxy#setup-a-stand-alone-proxy-server-with-proxy-request-header-re-writing
+// let userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36'
+proxy.on('proxyReq', (proxyReq, req, res, options) => {
+  // proxyReq.setHeader('User-Agent', userAgent)
+  proxyReq.setHeader('Referer', '') // csdn查referer 会跪
+})
+
 let cache = new Map()
 
 let server = http.createServer((req, res) => {
