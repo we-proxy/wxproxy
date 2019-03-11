@@ -32,21 +32,23 @@ let server = http.createServer((req, res) => {
   //   return
   // }
 
-  let cac = cache.get(url)
-  if (cac) {
-    console.log('cache hit')
-    let { date, headers, buffer } = cac
+  if (process.env.READ_CACHE) {
+    let cac = cache.get(url)
+    if (cac) {
+      console.log('cache hit')
+      let { date, headers, buffer } = cac
 
-    Object.keys(headers).forEach(k => {
-      res.setHeader(k, headers[k])
-    })
-    res.write(buffer)
-    res.end()
+      Object.keys(headers).forEach(k => {
+        res.setHeader(k, headers[k])
+      })
+      res.write(buffer)
+      res.end()
 
-    let threshold = 1 * 60 * 1000
-    if (new Date() - date < threshold) return
+      let threshold = 1 * 60 * 1000
+      if (new Date() - date < threshold) return
 
-    res = new MockRes() // mocked & replaced
+      res = new MockRes() // mocked & replaced
+    }
   }
 
   let urlObj = $url.parse(url)
@@ -70,8 +72,10 @@ let server = http.createServer((req, res) => {
     // console.log('buffer', buffer)
     _end(data)
 
-    if (res.statusCode === 200) { // 还不是很确定应该怎么做
-      let headers = res.getHeaders()
+    let headers = res.getHeaders()
+    let isText = (headers['content-type'] || '').includes('text/')
+
+    if (isText && res.statusCode === 200) { // 还不是很确定应该怎么做
       cache.set(url, { date, headers, buffer })
     }
   }
