@@ -1,3 +1,4 @@
+let querystring = require('querystring')
 let httpProxy = require('http-proxy')
 let http = require('http')
 let $url = require('url')
@@ -11,20 +12,33 @@ let proxy = httpProxy.createProxyServer({
   changeOrigin: true
 })
 
+let getReqQuery = req => {
+  let qstr = req.url.slice(2) // /?url=xxx&refer=xxx
+  let query = querystring.parse(qstr)
+  return query
+}
+
 // 修改proxyReq
 // https://github.com/nodejitsu/node-http-proxy#setup-a-stand-alone-proxy-server-with-proxy-request-header-re-writing
 // let userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36'
 proxy.on('proxyReq', (proxyReq, req, res, options) => {
+  let referer = req.headers['x-tmp-referer']
+
+  // csdn查referer空可以; segmentfault要求为文章链接
+  proxyReq.setHeader('Referer', referer || '')
+
   // proxyReq.setHeader('User-Agent', userAgent)
-  proxyReq.setHeader('Referer', '') // csdn查referer 会跪
 })
 
 let cache = new Map()
 
 let server = http.createServer((req, res) => {
-  let _url = req.url.slice(4) // /?a={url}
-  let url = decodeURIComponent(_url)
-  console.log('url', url)
+  // 历史遗留 旧小程序为参数a
+  let { a, url, referer } = getReqQuery(req)
+  url = url || a
+
+  console.log({ url, referer })
+  req.headers['x-tmp-referer'] = referer || ''
 
   // if (!/\.md$/i.test(url)) {
   //   res.statusCode = 403
