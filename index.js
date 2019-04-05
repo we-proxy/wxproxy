@@ -24,7 +24,7 @@ let getReqQuery = req => {
 proxy.on('proxyReq', (proxyReq, req, res, options) => {
   let referer = req.headers['x-tmp-referer']
 
-  // csdn查referer空可以; segmentfault要求为文章链接
+  // csdn查referer空可以; segmentfault要求站点路径
   proxyReq.setHeader('Referer', referer || '')
 
   // proxyReq.setHeader('User-Agent', userAgent)
@@ -36,6 +36,16 @@ let server = http.createServer((req, res) => {
   // 历史遗留 旧小程序为参数a
   let { a, url, referer } = getReqQuery(req)
   url = url || a
+
+  let urlObj = $url.parse(url)
+  let host = `${urlObj.protocol}//${urlObj.host}/`
+  req.url = urlObj.path
+
+  if (referer === 'url') {
+    referer = url
+  } else if (referer === 'host') {
+    referer = host
+  }
 
   console.log({ url, referer })
   req.headers['x-tmp-referer'] = referer || ''
@@ -64,10 +74,6 @@ let server = http.createServer((req, res) => {
       res = new MockRes() // mocked & replaced
     }
   }
-
-  let urlObj = $url.parse(url)
-  let host = `${urlObj.protocol}//${urlObj.host}/`
-  req.url = urlObj.path
 
   let date = new Date()
   let buffer = Buffer.from([])
