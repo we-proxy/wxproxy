@@ -26,6 +26,7 @@ proxy.on('proxyReq', (proxyReq, req, res, options) => {
 
   // csdn查referer空可以; segmentfault要求站点路径
   proxyReq.setHeader('Referer', referer || '')
+  proxyReq.setHeader('Origin', '')
 
   // proxyReq.setHeader('User-Agent', userAgent)
 })
