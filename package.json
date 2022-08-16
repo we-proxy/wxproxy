@@ -1,5 +1,7 @@
 {
   "scripts": {
+    "docker:build": "docker build . -t wxproxy",
+    "docker:start": "npm run docker:build && docker run -it --network local-net -p 8999:8999 --rm wxproxy",
     "dev": "npx nodemon index.js",
     "start": "node ."
   },
